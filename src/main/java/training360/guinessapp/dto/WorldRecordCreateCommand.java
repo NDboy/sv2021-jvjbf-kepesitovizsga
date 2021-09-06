@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class WorldRecordCreateCommand {
 
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     private String description;
 
     @NotNull

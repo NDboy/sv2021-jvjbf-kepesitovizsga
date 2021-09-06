@@ -23,10 +23,8 @@ public class RecorderService {
 
     public List<RecorderShortDto> listRecorders() {
         Type targetListType = new TypeToken<List<RecorderShortDto>>() {}.getType();
-        List<Recorder> recorders = recorderRepository.findAll().stream()
-                .filter(r -> r.getName().startsWith("B") || r.getName().contains("e"))
-                .sorted(Comparator.comparing(re -> re.getDateOfBirth(), Comparator.reverseOrder()))
-                .collect(Collectors.toList());
+
+        List<Recorder> recorders = recorderRepository.listRecordersByCharacters();
         return modelMapper.map(recorders, targetListType);
     }
 

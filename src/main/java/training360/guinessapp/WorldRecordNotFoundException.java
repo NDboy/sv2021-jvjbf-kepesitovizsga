@@ -5,13 +5,14 @@ import org.zalando.problem.Status;
 
 import java.net.URI;
 
-public class RecorderNotFoundException extends AbstractThrowableProblem {
+public class WorldRecordNotFoundException extends AbstractThrowableProblem {
 
-    public RecorderNotFoundException(Long id) {
+    public WorldRecordNotFoundException(long id) {
         super(
-                URI.create("recorders/not-found"),
-                "Recorder not found",
+                URI.create("worldrecords/not-found"),
+                "World record not found",
                 Status.NOT_FOUND,
                 String.format("Not found with id '%d'", id));
+
     }
 }

@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
-import training360.guinessapp.dto.RecorderDto;
-import training360.guinessapp.dto.WorldRecordCreateCommand;
-import training360.guinessapp.dto.WorldRecordDto;
+import org.springframework.transaction.annotation.Transactional;
+import training360.guinessapp.dto.*;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -29,10 +29,27 @@ public class WorldRecordService {
         return new WorldRecordDto(worldRecord.getId(), worldRecord.getDescription(), worldRecord.getValue(), worldRecord.getUnitOfMeasure(), worldRecord.getDateOfRecord(), recorder.getName());
     }
 
-//    public List<WorldRecordDto> listWorldRecords() {
-//        Type targetListType = new TypeToken<List<WorldRecordDto>>() {}.getType();
-//        return modelMapper.map(worldRecordRepository.findAll(), targetListType);
-//    }
+    @Transactional
+    public BeatWorldRecordDto beatWorldRecord(long id, BeatWorldRecordCommand command) {
+        WorldRecord worldRecord = worldRecordRepository.findById(id)
+                .orElseThrow(() -> new WorldRecordNotFoundException(id));
+        Recorder newRecorder = recorderRepository.findById(command.getRecorderId())
+                .orElseThrow(() -> new RecorderNotFoundException(command.getRecorderId()));
+        Double difference = Math.abs(command.getNewValue() - worldRecord.getValue());
+
+        if(command.getNewValue() < worldRecord.getValue()) {
+            throw new InvalidNewRecordValueException(command.getNewValue(), worldRecord.getValue());
+        }
+        String oldRecorderName = worldRecord.getRecorder().getName();
+        Double oldRecordValue = worldRecord.getValue();
+
+        worldRecord.setRecorder(newRecorder);
+        worldRecord.setDateOfRecord(LocalDate.now());
+        worldRecord.setValue(command.getNewValue());
+
+        return new BeatWorldRecordDto(worldRecord.getDescription(), worldRecord.getUnitOfMeasure(), oldRecorderName, oldRecordValue, newRecorder.getName(), command.getNewValue(), difference);
+    }
+
 
 
 }
